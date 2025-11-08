@@ -2,6 +2,11 @@ export default (config, { strapi }) => {
   const requests = new Map();
   
   return async (ctx, next) => {
+    // Skip rate limiting for admin panel
+    if (ctx.request.url.startsWith('/admin')) {
+      return await next();
+    }
+    
     const ip = ctx.ip;
     const now = Date.now();
     const windowMs = 15 * 60 * 1000; // 15 minutes
