@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Blog</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      padding: 40px;
+      width: 100%;
+      max-width: 600px;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+    nav {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    nav a {
+      text-decoration: none;
+      color: #667eea;
+      font-weight: bold;
+      padding: 10px 15px;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+    nav a:hover {
+      background: rgba(102, 126, 234, 0.1);
+    }
+    .admin-link {
+      color: #e74c3c !important;
+    }
+    h2 {
+      color: #555;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 8px 0;
+      transition: transform 0.2s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .post {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 15px 0;
+      background: #f9f9f9;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .post h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    .post p {
+      color: #666;
+      line-height: 1.6;
+    }
+    #login, #blog {
+      animation: fadeIn 0.5s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+      animation: fadeIn 0.3s;
+    }
+    .modal-content h2 {
+      margin-top: 0;
+      color: #333;
+      text-align: center;
+    }
+    .modal-content textarea {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 16px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+    .modal-buttons button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: transform 0.2s;
+    }
+    .modal-buttons button:first-child {
+      background: #ccc;
+      color: #333;
+    }
+    .modal-buttons button:first-child:hover {
+      background: #bbb;
+      transform: translateY(-1px);
+    }
+    .modal-buttons button[type="submit"] {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .modal-buttons button[type="submit"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .post-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+    .delete-btn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .delete-btn:hover {
+      background: #c0392b;
+    }
+    .post-meta {
+      font-size: 12px;
+      color: #999;
+      margin-top: 10px;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.7/purify.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Secure Blog</h1>
+    <nav id="nav-bar" style="display:none;">
+      <ul>
+        <li><a href="#" onclick="showHome()">Home</a></li>
+        <li><a href="#" onclick="createPost()">Create Blog</a></li>
+        <li><a href="#" onclick="showAdminPanel()" class="admin-link" id="admin-link" style="display:none;">Admin</a></li>
+        <li><a href="#" onclick="logout()">Logout</a></li>
+      </ul>
+    </nav>
+    <div id="login-form">
+      <h2>Login</h2>
+      <input type="email" id="login-email" placeholder="Email">
+      <input type="password" id="login-password" placeholder="Password">
+      <button onclick="login()">Login</button>
+      <p>Don't have an account? <a href="#" onclick="showRegister()">Register</a></p>
+    </div>
+    <div id="register-form" style="display:none;">
+      <h2>Register</h2>
+      <input type="email" id="register-email" placeholder="Email">
+      <input type="password" id="register-password" placeholder="Password">
+      <button onclick="register()">Register</button>
+      <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+    </div>
+    <div id="home-section" style="display:none;">
+      <h2>Blog Feed</h2>
+      <div id="posts"></div>
+    </div>
+    
+    <!-- Admin Panel -->
+    <div id="admin-section" style="display:none;">
+      <h2>Admin Panel - Manage All Posts</h2>
+      <div id="admin-posts"></div>
+    </div>
+    
+    <!-- Blog Creation Modal -->
+    <div id="create-post-modal" class="modal-overlay" style="display:none;">
+      <div class="modal-content">
+        <h2>Create New Blog Post</h2>
+        <form id="create-post-form">
+          <input type="text" id="post-title" placeholder="Blog Title" required>
+          <textarea id="post-content" placeholder="Blog Content" rows="10" required></textarea>
+          <div class="modal-buttons">
+            <button type="button" onclick="closeModal()">Cancel</button>
+            <button type="submit">Create Post</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:1337/api';
+    let token = localStorage.getItem('token');
+
+    if (token) {
+      showBlog();
+    } else {
+      showLogin();
+    }
+
+    function showLogin() {
+      document.getElementById('login-form').style.display = 'block';
+      document.getElementById('register-form').style.display = 'none';
+      document.getElementById('nav-bar').style.display = 'none';
+      document.getElementById('home-section').style.display = 'none';
+    }
+
+    function showRegister() {
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('register-form').style.display = 'block';
+      document.getElementById('nav-bar').style.display = 'none';
+      document.getElementById('home-section').style.display = 'none';
+    }
+
+    function showBlog() {
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('register-form').style.display = 'none';
+      document.getElementById('nav-bar').style.display = 'block';
+      document.getElementById('home-section').style.display = 'block';
+      loadPosts();
+    }
+
+    function showHome() {
+      document.getElementById('home-section').style.display = 'block';
+      // Hide other sections if any
+    }
+
+    async function login() {
+      console.log('Login clicked');
+      try {
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        console.log('Fetching:', `${API_URL}/auth/local`);
+        const res = await fetch(`${API_URL}/auth/local`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier: email, password })
+        });
+        console.log('Response status:', res.status);
+        const data = await res.json();
+        console.log('Response data:', data);
+        if (data.jwt) {
+          token = data.jwt;
+          localStorage.setItem('token', token);
+          showBlog();
+        } else {
+          alert('Login failed: ' + JSON.stringify(data));
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        alert('Login error: ' + error.message);
+      }
+    }
+
+    async function register() {
+      console.log('Register clicked');
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      
+      // Password validation
+      if (password.length < 8) {
+        alert('Password must be at least 8 characters long');
+        return;
+      }
+      if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+        alert('Password must contain at least one lowercase letter, one uppercase letter, and one number');
+        return;
+      }
+      
+      try {
+        console.log('Fetching:', `${API_URL}/auth/local/register`);
+        const res = await fetch(`${API_URL}/auth/local/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: email, email, password })
+        });
+        console.log('Response status:', res.status);
+        const data = await res.json();
+        console.log('Response data:', data);
+        if (data.jwt) {
+          token = data.jwt;
+          localStorage.setItem('token', token);
+          showBlog();
+        } else {
+          alert('Registration failed: ' + JSON.stringify(data));
+        }
+      } catch (error) {
+        console.error('Register error:', error);
+        alert('Register error: ' + error.message);
+      }
+    }
+
+    function logout() {
+      token = null;
+      localStorage.removeItem('token');
+      showLogin();
+    }
+
+    async function loadPosts() {
+      try {
+        const res = await fetch(`${API_URL}/blogs?populate=*`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        console.log('API response:', data);
+        const postsDiv = document.getElementById('posts');
+        postsDiv.innerHTML = '';
+        if (data.data && data.data.length > 0) {
+          data.data.forEach(post => {
+            const div = document.createElement('div');
+            div.className = 'post';
+            // Handle both Strapi v4 (attributes) and v5 (flat structure) formats
+            const title = post.attributes ? post.attributes.title : post.title;
+            const content = post.attributes ? post.attributes.content : post.content;
+            div.innerHTML = `<h3>${DOMPurify.sanitize(title)}</h3><p>${DOMPurify.sanitize(content)}</p>`;
+            postsDiv.appendChild(div);
+          });
+        } else {
+          postsDiv.innerHTML = '<p>No posts found.</p>';
+        }
+      } catch (error) {
+        console.error('Load posts error:', error);
+      }
+    }
+
+    async function createPost() {
+      document.getElementById('create-post-modal').style.display = 'flex';
+      document.getElementById('post-title').focus();
+    }
+
+    function closeModal() {
+      document.getElementById('create-post-modal').style.display = 'none';
+      document.getElementById('create-post-form').reset();
+    }
+
+    // Handle form submission
+    document.getElementById('create-post-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const title = document.getElementById('post-title').value.trim();
+      const content = document.getElementById('post-content').value.trim();
+      
+      if (title && content) {
+        try {
+          const res = await fetch(`${API_URL}/blogs`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ data: { title, content } })
+          });
+          
+          if (res.ok) {
+            closeModal();
+            loadPosts();
+          } else {
+            const errorData = await res.json();
+            alert('Failed to create post: ' + JSON.stringify(errorData));
+          }
+        } catch (error) {
+          console.error('Create post error:', error);
+          alert('Error creating post: ' + error.message);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
