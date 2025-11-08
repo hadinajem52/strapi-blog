@@ -5,7 +5,7 @@ export default {
       path: '/blogs',
       handler: 'blog.find',
       config: {
-        policies: [],
+        policies: ['global::is-authenticated'],
         middlewares: [],
       },
     },

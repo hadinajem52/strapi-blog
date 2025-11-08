@@ -36,5 +36,50 @@ export default {
         default_role: 1,
       },
     });
+
+    // Set permissions for authenticated users
+    const authenticatedRole = await strapi.query('plugin::users-permissions.role').findOne({
+      where: { type: 'authenticated' },
+    });
+
+    if (authenticatedRole) {
+      // Permissions for blog content type
+      const permissions = [
+        {
+          action: 'api::blog.blog.find',
+          role: authenticatedRole.id,
+        },
+        {
+          action: 'api::blog.blog.findOne',
+          role: authenticatedRole.id,
+        },
+        {
+          action: 'api::blog.blog.create',
+          role: authenticatedRole.id,
+        },
+        {
+          action: 'api::blog.blog.update',
+          role: authenticatedRole.id,
+        },
+        {
+          action: 'api::blog.blog.delete',
+          role: authenticatedRole.id,
+        },
+      ];
+
+      for (const perm of permissions) {
+        const existing = await strapi.query('plugin::users-permissions.permission').findOne({
+          where: {
+            action: perm.action,
+            role: perm.role,
+          },
+        });
+        if (!existing) {
+          await strapi.query('plugin::users-permissions.permission').create({
+            data: perm,
+          });
+        }
+      }
+    }
   },
 };
