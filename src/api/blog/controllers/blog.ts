@@ -2,9 +2,31 @@ import { factories } from '@strapi/strapi';
 
 export default factories.createCoreController('api::blog.blog', ({ strapi }) => ({
   async find(ctx) {
-    const { data, meta } = await super.find(ctx);
-    console.log('Find blogs result:', data.length, 'posts');
-    return { data, meta };
+    // Use entityService to ensure proper population
+    const entities = await strapi.entityService.findMany('api::blog.blog', {
+      ...ctx.query,
+      populate: ['author']
+    });
+    
+    console.log('Find blogs result:', entities.length, 'posts');
+    
+    // Manually format the response to include author data
+    const formattedData = entities.map((entity: any) => ({
+      id: entity.id,
+      documentId: entity.documentId,
+      title: entity.title,
+      content: entity.content,
+      publishedAt: entity.publishedAt,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+      author: entity.author ? {
+        id: entity.author.id,
+        username: entity.author.username,
+        email: entity.author.email
+      } : null
+    }));
+    
+    return { data: formattedData };
   },
 
   async findOne(ctx) {
