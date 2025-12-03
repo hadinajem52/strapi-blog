@@ -44,40 +44,37 @@ export default {
 
     if (authenticatedRole) {
       // Permissions for blog content type
-      const permissions = [
-        {
-          action: 'api::blog.blog.find',
-          role: authenticatedRole.id,
-        },
-        {
-          action: 'api::blog.blog.findOne',
-          role: authenticatedRole.id,
-        },
-        {
-          action: 'api::blog.blog.create',
-          role: authenticatedRole.id,
-        },
-        {
-          action: 'api::blog.blog.update',
-          role: authenticatedRole.id,
-        },
-        {
-          action: 'api::blog.blog.delete',
-          role: authenticatedRole.id,
-        },
+      const permissionActions = [
+        'api::blog.blog.find',
+        'api::blog.blog.findOne',
+        'api::blog.blog.create',
+        'api::blog.blog.update',
+        'api::blog.blog.delete',
+        // Upload permissions - all actions needed for file upload
+        'plugin::upload.upload',
+        'plugin::upload.actionUpload',
+        'plugin::upload.find',
+        'plugin::upload.findOne',
+        'plugin::upload.destroy',
       ];
 
-      for (const perm of permissions) {
+      for (const action of permissionActions) {
         const existing = await strapi.query('plugin::users-permissions.permission').findOne({
           where: {
-            action: perm.action,
-            role: perm.role,
+            action: action,
+            role: authenticatedRole.id,
           },
         });
         if (!existing) {
           await strapi.query('plugin::users-permissions.permission').create({
-            data: perm,
+            data: {
+              action: action,
+              role: authenticatedRole.id,
+            },
           });
+          console.log(`Created permission: ${action}`);
+        } else {
+          console.log(`Permission already exists: ${action}`);
         }
       }
     }
