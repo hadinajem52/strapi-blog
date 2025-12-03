@@ -57,6 +57,7 @@ export default factories.createCoreController('api::blog.blog', ({ strapi }) => 
       console.log('Request body:', ctx.request.body);
       
       // Handle file upload if present
+      // Initialize uploadedImage variable
       let uploadedImage = null;
       if (ctx.request.files && ctx.request.files['files.image']) {
         const file = Array.isArray(ctx.request.files['files.image']) ? ctx.request.files['files.image'][0] : ctx.request.files['files.image'];
