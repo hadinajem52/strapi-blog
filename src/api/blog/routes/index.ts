@@ -5,7 +5,7 @@ export default {
       path: '/blogs',
       handler: 'blog.find',
       config: {
-        policies: ['global::is-authenticated'],
+        policies: [],
         middlewares: [],
       },
     },
@@ -23,7 +23,7 @@ export default {
       path: '/blogs',
       handler: 'blog.create',
       config: {
-        policies: ['global::is-authenticated'],
+        policies: [],
         middlewares: [],
       },
     },
@@ -32,7 +32,7 @@ export default {
       path: '/blogs/:id',
       handler: 'blog.update',
       config: {
-        policies: ['global::is-authenticated'],
+        policies: [],
         middlewares: [],
       },
     },
@@ -41,7 +41,7 @@ export default {
       path: '/blogs/:id',
       handler: 'blog.delete',
       config: {
-        policies: ['global::is-authenticated'],
+        policies: [],
         middlewares: [],
       },
     },

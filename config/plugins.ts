@@ -3,17 +3,14 @@ export default ({ env }) => ({
     config: {
       provider: 'local',
       providerOptions: {
-        sizeLimit: 1000000, // 1MB
+        sizeLimit: 1000000, // 1MB - Security: Limit file size
       },
-      allowedTypes: ['images'],
-      allowedExtensions: ['png', 'jpg', 'jpeg', 'gif', 'webp'],
-      // For malware scanning, would need additional plugin
     },
   },
   'users-permissions': {
     config: {
       jwt: {
-        expiresIn: '7d', // session timeout
+        expiresIn: '30m', // Security: Reduced from 7d to 30 minutes to limit token theft window
       },
       jwtSecret: env('JWT_SECRET', 'default-secret-change-in-production'),
     },

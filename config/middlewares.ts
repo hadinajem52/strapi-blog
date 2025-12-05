@@ -1,30 +1,7 @@
 export default [
   'strapi::logger',
   'strapi::errors',
-  {
-    name: 'strapi::security',
-    config: {
-      contentSecurityPolicy: {
-        useDefaults: true,
-        directives: {
-          'connect-src': ["'self'", 'https:'],
-          'img-src': ["'self'", 'data:', 'blob:', 'https:'],
-          'media-src': ["'self'", 'data:', 'blob:'],
-          upgradeInsecureRequests: null,
-        },
-      },
-      hsts: {
-        maxAge: 31536000,
-        includeSubDomains: true,
-        preload: true,
-      },
-      frameguard: {
-        action: 'deny',
-      },
-      xssFilter: true,
-      noSniff: true,
-    },
-  },
+  'strapi::security',
   'strapi::cors',
   'strapi::poweredBy',
   'strapi::query',
@@ -32,6 +9,13 @@ export default [
   'strapi::session',
   'strapi::favicon',
   'strapi::public',
-  'global::rate-limiter',
+  {
+    name: 'global::rate-limiter',
+    config: {
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 8, // limit each IP to 8 requests per windowMs
+      paths: ['/api/auth/local'], // Only rate limit auth endpoints
+    },
+  },
   'global::security-logger',
 ];
